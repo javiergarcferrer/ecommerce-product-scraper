@@ -3,8 +3,8 @@ import requests
 import product_scraper
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 
-SHOPIFY_STORE_DOMAIN = '24a907-3.myshopify.com'
-ACCESS_TOKEN = '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'
+SHOPIFY_STORE_DOMAIN = ''
+ACCESS_TOKEN = ''
 
 # URL of the page where product links are listed
 url = 'https://lifestylegarden.com/all-outdoor'
