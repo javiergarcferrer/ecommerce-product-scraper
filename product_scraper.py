@@ -18,14 +18,21 @@ image_tag = 'img'
 filename = 'muebles.json'
 
 
-def get_hlinks(url: str, link_tag: str) -> [str]:
+def get_hlinks(url: str, link_tag: str, pagination=None) -> [str]:
     request = session.get(url)
     products = request.html.find(link_tag)
     base_url = re.search(r'(https?://[^/]+)/', url).group(1)
     hlinks = [product.find('a', first=True).attrs['href'] for product in products]
     hlinks = [link if link.startswith('http') else base_url + link for link in hlinks]
+    
+    if pagination:
+        next_page = request.html.find(pagination, first=True)
+        next_page = next_page.find('a')[-1].attrs['href']
+        next_page = base_url + next_page if not next_page.startswith('http') else next_page
+        if next_page == url:
+            next_page = None
 
-    return hlinks
+    return hlinks, next_page
 
 
 def get_product(link: str, fields: dict, image_tag=None) -> dict:
