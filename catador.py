@@ -8,8 +8,10 @@ fields = {
     'description': '.c-product-description__info span:last-child',
     'price': '.c-price'
 }
-image_tag = 'c-product-card__image'
+image_tag = 'slick-list draggable'
 filename = 'vinos.json'
+pagination = '.c-pagination'
 
 if __name__ == "__main__":
-    product_scraper.scrape_products_to_file(url, link_tag, fields, filename, image_tag)
+    product_scraper.scrape_products_to_file(url, link_tag, fields, filename, image_tag=image_tag, pagination=pagination)
+
