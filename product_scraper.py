@@ -6,84 +6,65 @@ import re
 
 session = HTMLSession()
 
-url = 'https://lifestylegarden.com/all-outdoor'
-link_tag = '.woocommerce-LoopProduct-link'
-fields = {
-    'title': '.et_pb_wc_title',
-    'brief': '.et_pb_wc_description',
-    'description': '.et-dynamic-content-woo--product_description',
-    'category': '.et_pb_accordion_item_5_tb_body h5'
-}
-image_tag = '.et_pb_gallery_image a'
-filename = 'muebles.json'
-pagination = 'c-pagination'
-
-def get_next_page(request, base_url, pagination):
+def get_next_page_link(request, base_url, pagination):
     if pagination:
         pagination_element = request.html.find(pagination, first=True)
         if pagination_element:
-            next_page = pagination_element.find('a')[-1].attrs['href']
-            next_page = f"{base_url}/{next_page}" if not next_page.startswith('http') else next_page
-            if next_page == base_url:
-                next_page = None
-            return next_page
+            next_page_link = pagination_element.find('a')[-1].attrs['href']
+            next_page_link = f"{base_url}/{next_page_link}" if not next_page_link.startswith('http') else next_page_link
+            if next_page_link == base_url:
+                next_page_link = None
+            return next_page_link
     return None
 
-def get_hlinks(url: str, link_tag: str, pagination=None) -> [str]:
+def get_product_links(url: str, link_tag: str, pagination=None) -> [str]:
     request = session.get(url)
     products = request.html.find(link_tag)
     base_url = re.search(r'(https?://[^/]+)/', url).group(1)
-    hlinks = [product.find('a', first=True).attrs['href'] for product in products]
-    hlinks = [link if link.startswith('http') else base_url + link for link in hlinks]
-    next_page = get_next_page(request, base_url, pagination)
+    product_links = [product.find('a', first=True).attrs['href'] for product in products]
+    product_links = [link if link.startswith('http') else base_url + link for link in product_links]
+    next_page_link = get_next_page_link(request, base_url, pagination)
 
-    return hlinks, next_page
+    return product_links, next_page_link
 
-
-def get_images(request, image_tag):
+def extract_images(request, image_tag):
     image_elements = request.html.find(image_tag)
-    images = []
+    image_sources = []
     for image in image_elements:
         try:
-            images.append({'src': image.attrs['data-src']})
+            image_sources.append({'src': image.attrs['data-src']})
         except KeyError:
-            images.append({'src': image.attrs['href']})
-    return images
+            image_sources.append({'src': image.attrs['href']})
+    return image_sources
 
-
-def get_product(link: str, fields: dict, image_tag=None) -> dict:
-    request = session.get(link)
-    product = {}
+def scrape_product_info(product_link: str, fields: dict, image_tag=None) -> dict:
+    request = session.get(product_link)
+    product_data = {}
     for key, selector in fields.items():
         el = request.html.find(selector, first=True)
-        product[key] = el.full_text.strip() if el else ''
-    product['url'] = link
+        product_data[key] = el.full_text.strip() if el else ''
+    product_data['url'] = product_link
 
     if image_tag:
-        product['images'] = get_images(request, image_tag)
+        product_data['images'] = extract_images(request, image_tag)
 
-    return {'product': product}
+    return {'product': product_data}
 
-
-def scrape_products_to_file(url: str, link_tag: str, fields: dict, filename: str, image_tag=None, pagination=None):
-    products = []
-    page_count = 1  # Initialize page counter
+def scrape_site(url: str, link_tag: str, fields: dict, filename: str, image_tag=None, pagination=None):
+    all_products_data = []
+    page_number = 1
 
     while url:
-        hlinks, url = get_hlinks(url, link_tag, pagination)
+        product_links, url = get_product_links(url, link_tag, pagination)
 
-        with progressbar.ProgressBar(max_value=len(hlinks), 
-                                     prefix=f'Page {page_count}: ') as bar:  # Add page count to progress bar prefix
-            for i, hlink in enumerate(hlinks):
-                product = get_product(hlink, fields, image_tag)
-                products.append(product)
+        with progressbar.ProgressBar(max_value=len(product_links), 
+                                     prefix=f'Page {page_number}: ') as bar:
+            for i, product_link in enumerate(product_links):
+                product_data = scrape_product_info(product_link, fields, image_tag)
+                all_products_data.append(product_data)
                 bar.update(i)
 
-        page_count += 1  # Increment page count
+        page_number += 1
 
     with open(filename, 'w') as f:
-        json.dump(products, f, indent=4)
-
-
-if __name__ == "__main__":
-    scrape_products_to_file(url, link_tag, fields, filename, image_tag, pagination)
+        json.dump(all_products_data, f, indent=4)
