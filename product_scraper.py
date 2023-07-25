@@ -51,7 +51,6 @@ def scrape_products_to_file(url: str, link_tag: str, fields: dict, filename: str
     with progressbar.ProgressBar(max_value=len(hlinks)) as bar:
         for i, hlink in enumerate(hlinks):
             product = get_product(hlink, fields, image_tag)
-            print(product)
             products.append(product)
             bar.update(i)
 
