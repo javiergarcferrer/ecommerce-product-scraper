@@ -14,8 +14,9 @@ fields = {
     'description': '.et-dynamic-content-woo--product_description',
     'category': '.et_pb_accordion_item_5_tb_body h5'
 }
-image_tag = 'img'
+image_tag = '.et_pb_gallery_image a'
 filename = 'muebles.json'
+pagination = 'c-pagination'
 
 def get_next_page(request, base_url, pagination):
     if pagination:
@@ -38,6 +39,18 @@ def get_hlinks(url: str, link_tag: str, pagination=None) -> [str]:
 
     return hlinks, next_page
 
+
+def get_images(request, image_tag):
+    image_elements = request.html.find(image_tag)
+    images = []
+    for image in image_elements:
+        try:
+            images.append({'src': image.attrs['data-src']})
+        except KeyError:
+            images.append({'src': image.attrs['href']})
+    return images
+
+
 def get_product(link: str, fields: dict, image_tag=None) -> dict:
     request = session.get(link)
     product = {}
@@ -47,26 +60,30 @@ def get_product(link: str, fields: dict, image_tag=None) -> dict:
     product['url'] = link
 
     if image_tag:
-        image_elements = request.html.find(image_tag)
-        product['images'] = [{'src': image.find('a', first=True).attrs['href']} 
-                             for image in image_elements if image.find('a', first=True)]
+        product['images'] = get_images(request, image_tag)
 
     return {'product': product}
 
+
 def scrape_products_to_file(url: str, link_tag: str, fields: dict, filename: str, image_tag=None, pagination=None):
     products = []
+    page_count = 1  # Initialize page counter
 
     while url:
         hlinks, url = get_hlinks(url, link_tag, pagination)
 
-        with progressbar.ProgressBar(max_value=len(hlinks)) as bar:
+        with progressbar.ProgressBar(max_value=len(hlinks), 
+                                     prefix=f'Page {page_count}: ') as bar:  # Add page count to progress bar prefix
             for i, hlink in enumerate(hlinks):
                 product = get_product(hlink, fields, image_tag)
                 products.append(product)
                 bar.update(i)
 
+        page_count += 1  # Increment page count
+
     with open(filename, 'w') as f:
         json.dump(products, f, indent=4)
 
+
 if __name__ == "__main__":
-    scrape_products_to_file(url, link_tag, fields, filename, image_tag, pagination='c-pagination')
+    scrape_products_to_file(url, link_tag, fields, filename, image_tag, pagination)
