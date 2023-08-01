@@ -1,0 +1,2 @@
+st -e ngrok http 8000 &
+uvicorn main:app
