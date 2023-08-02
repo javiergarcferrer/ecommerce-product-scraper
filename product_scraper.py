@@ -31,10 +31,10 @@ class ProductScraper:
                 return next_page_link
         return None
 
-    def get_product_links(self, url, link_tag, pagination=None) -> [str]:
+    def get_product_links(self, url) -> [str]:
         """Get product links on a page."""
         request = self.session.get(url)
-        products = request.html.find(link_tag)
+        products = request.html.find(self.link_tag)
         base_url = re.search(r'(https?://[^/]+)/', url).group(1)
         product_links = [product.find('a', first=True).attrs['href'] for product in products]
         product_links = [link if link.startswith('http') else base_url + link for link in product_links]
@@ -77,7 +77,7 @@ class ProductScraper:
         page_number = 1
 
         while url:
-            product_links, url = self.get_product_links(self.url, self.link_tag, self.pagination)
+            product_links, url = self.get_product_links(url)
 
             with progressbar.ProgressBar(max_value=len(product_links), 
                                          prefix=f'Page {page_number}: ') as bar:
