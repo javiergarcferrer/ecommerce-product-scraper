@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 from models import Conversation, SessionLocal
 from twilio_utils import send_message, logger
 from agent import agent_instance
-
 import os
-os.environ["NUMEXPR_MAX_THREADS"] = '16'
+
+os.environ['NUMEXPR_MAX_THREADS'] = '16'
 
 app = FastAPI()
 

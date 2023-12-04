@@ -1,17 +1,21 @@
 {
     "LifestyleGarden": {
-        "url": "https://lifestylegarden.com/all-outdoor",
+        "url": [
+          "https://lifestylegarden.com/collections/agate/"
+        ],
         "link_tag": ".woocommerce-LoopProduct-link",
+        "thumbnail_tag": ".et_shop_image img",
         "fields": {
             "title": ".et_pb_wc_title",
-            "brief": ".et_pb_wc_description",
-            "description": ".et-dynamic-content-woo--product_description",
-            "category": ".et_pb_accordion_item_5_tb_body h5"
+            "body_html": ".et-dynamic-content-woo--product_description",
+            "product_type": ".et_pb_accordion_item_5_tb_body h5"
         },
         "image_tag": ".et_pb_gallery_image a",
         "filename": "muebles.json",
-        "pagination": "c-pagination"
-    },
+        "metafields": {
+            "feature": ".et_pb_wc_description"
+        }
+      },
     "El Catador": {
         "url": "https://tiendaenlinea.elcatador.com/collections/all",
         "link_tag": ".c-product-card__top",
@@ -24,5 +28,33 @@
         "image_tag": ".c-product-slide img",
         "filename": "vinos.json",
         "pagination": ".c-pagination"
+    },
+    "LifestyleGarden Sets": {
+        "url": [
+          "https://lifestylegarden.com/collections/agate/",
+          "https://lifestylegarden.com/collections/jade/",
+          "https://lifestylegarden.com/collections/garnet/",
+          "https://lifestylegarden.com/collections/solitaires/",
+          "https://lifestylegarden.com/collections/topaz/",
+          "https://lifestylegarden.com/collections/nassau/",
+          "https://lifestylegarden.com/collections/bahamas/",
+          "https://lifestylegarden.com/collections/panama-light/",
+          "https://lifestylegarden.com/collections/panama-dark/",
+          "https://lifestylegarden.com/collections/portals-light/",
+          "https://lifestylegarden.com/collections/portals-dark/",
+          "https://lifestylegarden.com/collections/ipanema/"
+        ],
+        "link_tag": ".woocommerce-LoopProduct-link",
+        "thumbnail_tag": ".et_shop_image img",
+        "fields": {
+            "title": ".et_pb_wc_title",
+            "body_html": ".et-dynamic-content-woo--product_description",
+            "product_type": ".et_pb_accordion_item_5_tb_body h5"
+        },
+        "image_tag": ".et_pb_gallery_image a",
+        "filename": "muebles.json",
+        "metafields": {
+            "feature": ".et_pb_wc_description"
+        }
     }
 }
